@@ -9,42 +9,42 @@ run "defaults" {
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.chart == "agentic-gateway-stack"
+    condition     = helm_release.ai_gateway_stack.chart == "ai-gateway-stack"
     error_message = "unexpected chart name"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.repository == "oci://registry-1.docker.io/p0security"
+    condition     = helm_release.ai_gateway_stack.repository == "oci://registry-1.docker.io/p0security"
     error_message = "unexpected repository"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.name == "agentic-gateway"
+    condition     = helm_release.ai_gateway_stack.name == "agentic-gateway"
     error_message = "default release name should be agentic-gateway"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.namespace == "agentic-gateway"
+    condition     = helm_release.ai_gateway_stack.namespace == "agentic-gateway"
     error_message = "default namespace should be agentic-gateway"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.create_namespace == true
+    condition     = helm_release.ai_gateway_stack.create_namespace == true
     error_message = "create_namespace should default to true"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.timeout == 360
+    condition     = helm_release.ai_gateway_stack.timeout == 360
     error_message = "timeout should default to 360 so it outlasts the secrets Job's 300 second deadline"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.wait == false
+    condition     = helm_release.ai_gateway_stack.wait == false
     error_message = "wait should default to false; the TLS certificate cannot issue before the DNS record exists"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.version == local.chart_version
+    condition     = helm_release.ai_gateway_stack.version == local.chart_version
     error_message = "chart version should be pinned to local.chart_version"
   }
 
@@ -67,27 +67,27 @@ run "override_release_metadata" {
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.name == "my-mcp"
+    condition     = helm_release.ai_gateway_stack.name == "my-mcp"
     error_message = "release name override not applied"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.namespace == "platform"
+    condition     = helm_release.ai_gateway_stack.namespace == "platform"
     error_message = "namespace override not applied"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.create_namespace == false
+    condition     = helm_release.ai_gateway_stack.create_namespace == false
     error_message = "create_namespace override not applied"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.timeout == 900 && helm_release.p0_agentic_gateway_stack.wait == true
+    condition     = helm_release.ai_gateway_stack.timeout == 900 && helm_release.ai_gateway_stack.wait == true
     error_message = "timeout and wait overrides not applied"
   }
 
   assert {
-    condition     = helm_release.p0_agentic_gateway_stack.version == local.chart_version
+    condition     = helm_release.ai_gateway_stack.version == local.chart_version
     error_message = "chart version should remain pinned even when other metadata is overridden"
   }
 }
@@ -103,7 +103,7 @@ run "values_passthrough" {
   }
 
   assert {
-    condition     = length(helm_release.p0_agentic_gateway_stack.values) == 2
+    condition     = length(helm_release.ai_gateway_stack.values) == 2
     error_message = "both values entries should be passed through to the helm release"
   }
 }

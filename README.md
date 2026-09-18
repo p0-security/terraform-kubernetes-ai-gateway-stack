@@ -1,6 +1,6 @@
-# terraform-kubernetes-p0-agentic-gateway-stack
+# terraform-kubernetes-ai-gateway-stack
 
-Terraform module that deploys [agentic-gateway](https://github.com/p0-security/agentic-gateway) via the [agentic-gateway-stack](https://github.com/p0-security/p0-helm-oauthed-mcp) umbrella Helm chart. The chart bundles Envoy Gateway, cert-manager, Let's Encrypt (ACME HTTP-01), PostgreSQL, and Valkey into a single install.
+Terraform module that deploys [agentic-gateway](https://github.com/p0-security/agentic-gateway) via the [ai-gateway-stack](https://github.com/p0-security/p0-helm-oauthed-mcp) umbrella Helm chart. The chart bundles Envoy Gateway, cert-manager, Let's Encrypt (ACME HTTP-01), PostgreSQL, and Valkey into a single install.
 
 ## Usage
 
@@ -11,9 +11,9 @@ provider "helm" {
   }
 }
 
-module "p0_agentic_gateway_stack" {
-  source  = "p0-security/p0-agentic-gateway-stack/kubernetes"
-  version = "0.2.1"
+module "ai_gateway_stack" {
+  source  = "p0-security/ai-gateway-stack/kubernetes"
+  version = "0.3.0"
 
   values = [
     file("${path.module}/values.yaml"),
@@ -50,41 +50,52 @@ If your secrets already come from External Secrets or Vault, set `agentic-gatewa
 
 For all post-deploy steps (DNS, verification, staging→prod), follow the [deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
 
-## Migrating from `p0-oauthed-mcp`
+## Migrating from `p0-agentic-gateway-stack`
 
-This module was published as `p0-security/p0-oauthed-mcp/kubernetes` through
-version 0.1.9. That module is now a thin wrapper around this one and will stop
-receiving updates — switch to this address.
+This module was published as `p0-security/p0-agentic-gateway-stack/kubernetes`
+through version 0.2.3, and as `p0-security/p0-oauthed-mcp/kubernetes` through
+version 0.1.9. Both repositories are archived: the versions already published
+there stay resolvable, but no new version will appear at either address.
 
-**The release name and namespace defaults changed** from `oauthed-mcp` to
-`agentic-gateway`. Both are replace-forcing in the Helm provider, so if you
-relied on the defaults you must pin the old values explicitly, or Terraform will
-destroy and recreate the release (losing PostgreSQL and Valkey data):
+Repointing is a `source` and `version` change, nothing more:
 
 ```hcl
-module "p0_agentic_gateway_stack" {
-  source  = "p0-security/p0-agentic-gateway-stack/kubernetes"
-  version = "0.2.1"
-
-  # Required only when migrating an existing release that used the old defaults.
-  release_name = "oauthed-mcp"
-  namespace    = "oauthed-mcp"
+module "ai_gateway_stack" {
+  source  = "p0-security/ai-gateway-stack/kubernetes"
+  version = "0.3.0"
 
   values = [...]
 }
 ```
 
-The `helm_release` resource was also renamed, but a `moved` block in this module
-handles that for you. With the names pinned as above, `terraform plan` should
-report a move plus an in-place update — never a replacement. Confirm that before
-applying.
+**No defaults changed in this release.** `release_name` and `namespace` still
+default to `agentic-gateway`, so unlike the 0.1.x → 0.2.x move there is nothing
+to pin to avoid a replacement. The `helm_release` resource was renamed, but
+chained `moved` blocks in this module handle that from either older lineage.
+`terraform plan` should report a move plus at most an in-place update — never a
+replacement, which would destroy the release along with its PostgreSQL and
+Valkey data. Confirm that before applying.
 
-The chart itself is published under both `p0-helm-oauthed-mcp` and
-`agentic-gateway-stack` from version 0.9.1 onward, and the two packages are
-identical, so repointing at the new chart name changes no rendered manifests.
+The pinned chart also changed name, from `agentic-gateway-stack` to
+`ai-gateway-stack`. The two are the same package pushed under two names at the
+same version, so this renders identical manifests. `ai-gateway-stack` is the
+chart's real name; `agentic-gateway-stack` is a compatibility alias that will be
+dropped once its remaining consumers have migrated, which is why this module no
+longer pulls it. The pre-rename `p0-helm-oauthed-mcp` chart is retired.
 
-Values keys followed the same rename: the subchart block is now
-`agentic-gateway` rather than `oauthed-mcp`.
+### Coming from 0.1.x
+
+If you are still on `p0-oauthed-mcp` and relied on the old defaults, the release
+name and namespace changed from `oauthed-mcp` to `agentic-gateway` in 0.2.0, and
+both are replace-forcing in the Helm provider. Pin them explicitly:
+
+```hcl
+  release_name = "oauthed-mcp"
+  namespace    = "oauthed-mcp"
+```
+
+Values keys followed that same rename: the subchart block is `agentic-gateway`
+rather than `oauthed-mcp`.
 
 ## Compatibility matrix
 
@@ -92,13 +103,14 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
-| 0.2.3          | 0.11.0        |
-| 0.2.2          | 0.10.3        |
-| 0.2.1          | 0.10.2        |
-| 0.2.0          | 0.10.0        |
+| 0.3.0          | 0.11.0        |
 
-For chart versions 0.8.6 and earlier, see the matrix in
+Earlier module versions were published at the module's two previous addresses,
+and their matrices live with them: 0.2.0–0.2.3 (chart 0.10.0–0.11.0) in
+[terraform-kubernetes-p0-agentic-gateway-stack](https://github.com/p0-security/terraform-kubernetes-p0-agentic-gateway-stack#compatibility-matrix),
+and 0.1.x (chart 0.8.6 and earlier) in
 [terraform-kubernetes-p0-oauthed-mcp](https://github.com/p0-security/terraform-kubernetes-p0-oauthed-mcp#compatibility-matrix).
+Both are archived.
 
 ## Requirements
 
