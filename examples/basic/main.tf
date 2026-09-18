@@ -5,9 +5,9 @@ provider "helm" {
   }
 }
 
-module "p0_agentic_gateway_stack" {
-  source  = "p0-security/p0-agentic-gateway-stack/kubernetes"
-  version = "0.2.1"
+module "ai_gateway_stack" {
+  source  = "p0-security/ai-gateway-stack/kubernetes"
+  version = "0.3.0"
 
   release_name     = var.release_name
   namespace        = var.namespace
@@ -15,6 +15,6 @@ module "p0_agentic_gateway_stack" {
   values           = [file(var.values_file)]
 }
 
-output "release_name" { value = module.p0_agentic_gateway_stack.release_name }
-output "namespace" { value = module.p0_agentic_gateway_stack.namespace }
-output "chart_version" { value = module.p0_agentic_gateway_stack.chart_version }
+output "release_name" { value = module.ai_gateway_stack.release_name }
+output "namespace" { value = module.ai_gateway_stack.namespace }
+output "chart_version" { value = module.ai_gateway_stack.chart_version }
